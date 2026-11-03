@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="宇宙年历 · 大历史智能体：把 138 亿年压缩成一年，看每一件事落在哪一秒。">
+<title>宇宙年历 · 大历史智能体（单文件版）</title>
+<!-- 单文件版：CSS 与 JS 已内联，可离线双击打开，无需服务器。 -->
+<style>
+:root {
+  --bg: #05070f;
+  --panel: rgba(17, 25, 43, 0.72);
+  --panel-solid: #111a2b;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --ink: #e9eefb;
+  --muted: #93a3c4;
+  --gold: #e8b55e;
+  --cyan: #63c8e6;
+  --violet: #a78bfa;
+  --ok: #6ee7a8;
+  --warn: #f0b95c;
+  --radius: 16px;
+  --mono: "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  color: var(--ink);
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 800px at 12% -12%, rgba(99, 200, 230, 0.14), transparent 60%),
+    radial-gradient(900px 620px at 92% -4%, rgba(167, 139, 250, 0.13), transparent 55%),
+    radial-gradient(760px 520px at 50% 112%, rgba(232, 181, 94, 0.09), transparent 62%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+#stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+#stars i {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.55;
+  animation: twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.18; }
+  50% { opacity: 0.75; }
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 20px 72px;
+}
+
+/* ---------- 顶部 ---------- */
+header.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.brand { display: flex; gap: 14px; align-items: center; }
+
+.logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: var(--gold);
+  border: 1px solid rgba(232, 181, 94, 0.45);
+  background: radial-gradient(circle at 35% 30%, rgba(232, 181, 94, 0.25), transparent 70%);
+  box-shadow: 0 0 24px rgba(232, 181, 94, 0.18);
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  font-weight: 650;
+}
+.sub {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.tabs {
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.tab:hover { color: var(--ink); }
+.tab.active {
+  background: rgba(232, 181, 94, 0.16);
+  color: var(--gold);
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(10px);
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ---------- 提问 ---------- */
+.ask label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.ask-row { display: flex; gap: 10px; }
+
+input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.18s;
+}
+input[type="text"]:focus {
+  border-color: rgba(99, 200, 230, 0.6);
+  box-shadow: 0 0 0 3px rgba(99, 200, 230, 0.1);
+}
+input::placeholder { color: #61708f; }
+
+button.primary {
+  appearance: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 13px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #17110a;
+  background: linear-gradient(180deg, #f0c678, #dda747);
+  cursor: pointer;
+  transition: 0.18s;
+  white-space: nowrap;
+}
+button.primary:hover { filter: brightness(1.06); }
+button.primary:disabled { opacity: 0.55; cursor: default; }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.chip {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+.chip:hover {
+  color: var(--ink);
+  border-color: rgba(99, 200, 230, 0.45);
+}
+
+/* ---------- 答案 ---------- */
+.answer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+.kicker {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.answer h2.big {
+  margin: 0;
+  font-size: 24px;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+.pin { text-align: right; }
+.pin-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.pin-value {
+  display: block;
+  font-family: var(--mono);
+  font-size: 26px;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.lead {
+  font-size: 16px;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.body { color: #c3cde3; margin: 0 0 14px; }
+.gap { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.fact {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 13px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.fact b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--cyan);
+  font-variant-numeric: tabular-nums;
+}
+.fact span { font-size: 12px; color: var(--muted); }
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.check {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(110, 231, 168, 0.28);
+  color: var(--ok);
+  background: rgba(110, 231, 168, 0.07);
+}
+.check.bad {
+  border-color: rgba(240, 185, 92, 0.35);
+  color: var(--warn);
+  background: rgba(240, 185, 92, 0.08);
+}
+
+/* ---------- 年历 ---------- */
+.strips { display: grid; gap: 18px; }
+
+.strip.faded { opacity: 0.42; }
+
+.strip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.strip-title { font-size: 13px; color: #c8d3e8; }
+.strip-sub { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+
+.strip-track {
+  position: relative;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(90deg, rgba(99, 200, 230, 0.16), rgba(167, 139, 250, 0.15) 48%, rgba(232, 181, 94, 0.2));
+  overflow: visible;
+}
+
+.strip-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.strip-mark {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--gold);
+  box-shadow: 0 0 12px rgba(232, 181, 94, 0.7);
+  transform: translateX(-1px);
+}
+.strip-mark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 16px rgba(232, 181, 94, 0.9);
+}
+
+.strip-dot {
+  position: absolute;
+  bottom: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transform: translateX(-2.5px);
+}
+
+.strip-labels {
+  position: relative;
+  height: 20px;
+  margin-top: 6px;
+}
+.strip-labels span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.strip-labels span:first-child { transform: translateX(0); }
+.strip-labels span:last-child { transform: translateX(-100%); }
+
+.hint { color: var(--muted); font-size: 12.5px; margin: 16px 0 0; }
+
+/* ---------- 模式切换 ---------- */
+.modes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.mode {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 5px 15px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+.mode:hover:not(:disabled) { color: var(--ink); }
+.mode.active {
+  background: rgba(99, 200, 230, 0.14);
+  border-color: rgba(99, 200, 230, 0.5);
+  color: var(--cyan);
+}
+.mode:disabled { opacity: 0.38; cursor: not-allowed; }
+.mode-hint { font-size: 12px; color: #5f6d8c; }
+
+/* ---------- AI 回答 ---------- */
+.ai-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.ai-meta { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+
+.turn { padding: 16px 0; border-top: 1px solid var(--line); }
+.turn:first-child { border-top: 0; padding-top: 0; }
+.turn .q { font-size: 13px; color: var(--muted); margin-bottom: 9px; }
+.turn .q b { color: var(--gold); font-weight: 600; }
+.turn .a { font-size: 14.5px; color: #dbe4f5; line-height: 1.8; }
+.turn .a p { margin: 0 0 10px; }
+.turn .a p:last-child { margin-bottom: 0; }
+.turn .a strong { color: #fff; }
+
+.sources { margin-top: 14px; display: grid; gap: 7px; }
+.src-label {
+  display: block;
+  font-size: 11px;
+  color: #5f6d8c;
+  letter-spacing: 0.08em;
+}
+.src {
+  display: block;
+  font-size: 12.5px;
+  color: #9db4d6;
+  text-decoration: none;
+  border-left: 2px solid rgba(99, 200, 230, 0.35);
+  padding-left: 9px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: 0.15s;
+}
+.src:hover { color: var(--cyan); border-left-color: var(--cyan); }
+.src b { color: var(--cyan); font-family: var(--mono); font-weight: 600; }
+
+.thinking { color: var(--muted); font-size: 13px; }
+
+.verify {
+  margin-top: 14px;
+  border-left: 2px solid rgba(110, 231, 168, 0.55);
+  background: rgba(110, 231, 168, 0.06);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #cfe8d9;
+  line-height: 1.7;
+}
+.verify b { color: #fff; font-family: var(--mono); }
+.v-label {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ok);
+  border: 1px solid rgba(110, 231, 168, 0.4);
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-right: 8px;
+}
+.v-note { display: block; margin-top: 4px; font-size: 11.5px; color: #7f9b8c; }
+
+.err { color: #ffb4a2; font-size: 13.5px; line-height: 1.7; }
+.err .hint-line { display: block; margin-top: 6px; color: #a9988f; font-size: 12.5px; }
+.err code {
+  background: rgba(255, 255, 255, 0.07);
+  padding: 1px 6px;
+  border-radius: 5px;
+  color: #ffd9a0;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* ---------- 推理 ---------- */
+.steps { list-style: none; margin: 0; padding: 0; }
+.step {
+  position: relative;
+  padding: 0 0 16px 26px;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: stepIn 0.32s ease forwards;
+}
+@keyframes stepIn { to { opacity: 1; transform: none; } }
+
+.step::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px rgba(99, 200, 230, 0.8);
+}
+.step::after {
+  content: "";
+  position: absolute;
+  left: 8.5px;
+  top: 19px;
+  bottom: 2px;
+  width: 1px;
+  background: var(--line);
+}
+.step:last-child::after { display: none; }
+
+.step-title { font-size: 13.5px; color: var(--ink); font-weight: 600; }
+.step-detail { font-size: 12.5px; color: var(--muted); margin-top: 2px; word-break: break-word; }
+
+/* ---------- 日志 ---------- */
+.log-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.log-actions { display: flex; gap: 8px; }
+
+button.ghost {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink);
+  border-radius: 9px;
+  padding: 6px 13px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+button.ghost:hover { border-color: rgba(99, 200, 230, 0.5); color: var(--cyan); }
+button.ghost:disabled { opacity: 0.4; cursor: default; }
+
+.profile {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.profile input {
+  flex: 1;
+  min-width: 240px;
+  padding: 9px 12px;
+  font-size: 13px;
+  border-radius: 9px;
+}
+
+.entries { display: grid; gap: 10px; }
+
+.entry {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.entry-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.entry-q { font-size: 14px; color: var(--ink); font-weight: 600; }
+.entry-time { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.entry-res { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+.entry-res b { color: var(--gold); font-family: var(--mono); font-weight: 600; }
+
+.entry-tools {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.entry-tools select,
+.entry-tools textarea {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  padding: 6px 9px;
+}
+.entry-tools select { min-width: 108px; }
+.entry-tools textarea {
+  flex: 1;
+  min-width: 200px;
+  min-height: 34px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.entry-tools button {
+  border: 0;
+  background: transparent;
+  color: #7b6a5a;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 6px;
+}
+.entry-tools button:hover { color: #ff8f8f; }
+
+.empty {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 10px 0;
+}
+
+/* ---------- 说明页 ---------- */
+.about h3 {
+  margin: 22px 0 8px;
+  font-size: 15px;
+  color: var(--gold);
+  font-weight: 600;
+}
+.about p { color: #c3cde3; margin: 0 0 10px; }
+.about ul { margin: 0 0 12px; padding-left: 20px; color: #c3cde3; }
+.about li { margin-bottom: 6px; }
+.about code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 5px;
+  color: var(--cyan);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+@media (min-width: 900px) {
+  .grid2 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 560px) {
+  .wrap { padding: 20px 14px 60px; }
+  .card { padding: 17px; }
+  .ask-row { flex-direction: column; }
+  button.primary { width: 100%; }
+  .pin-value { font-size: 22px; }
+  h1 { font-size: 19px; }
+  .answer h2.big { font-size: 20px; }
+}
+
+footer {
+  margin-top: 26px;
+  text-align: center;
+  font-size: 12px;
+  color: #5a6785;
+}
+
+@media print {
+  body { background: #fff; color: #111; }
+  #stars, .tabs { display: none; }
+  .card { border-color: #ddd; background: #fff; }
+}
+
+</style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">◎</div>
+      <div>
+        <h1>宇宙年历 · 大历史智能体</h1>
+        <p class="sub">把 138 亿年压缩成一年，看每一件事落在哪一秒</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="agent" role="tab" aria-selected="true">智能体</button>
+      <button class="tab" data-tab="about" role="tab" aria-selected="false">作品说明</button>
+    </nav>
+  </header>
+
+  <!-- ================= 智能体 ================= -->
+  <div id="tab-agent" class="tab-panel active">
+
+    <section class="card ask">
+      <div class="modes" role="tablist" aria-label="回答方式">
+        <button class="mode active" data-mode="local" role="tab" aria-selected="true">本地换算</button>
+        <button class="mode" data-mode="ai" id="modeAI" role="tab" aria-selected="false">AI 问答</button>
+        <span class="mode-hint" id="modeHint">精确换算 37 个大历史里程碑</span>
+      </div>
+      <label for="q" id="askLabel">问一个问题，或输入一个时间点</label>
+      <div class="ask-row">
+        <input id="q" type="text" placeholder="例如：农业革命 / 恐龙灭绝 / 1969 / 1.2 万年前 / 公元前 3000 年" autocomplete="off" spellcheck="false">
+        <button id="run" class="primary">开始推理</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <section class="card ai" id="aiCard" hidden>
+      <div class="ai-head">
+        <h2>AI 回答</h2>
+        <span class="ai-meta" id="aiMeta"></span>
+      </div>
+      <div class="thread" id="aiThread"></div>
+    </section>
+
+    <section class="card answer" id="answer" hidden>
+      <div class="answer-head">
+        <div>
+          <div class="kicker" id="aEra">—</div>
+          <h2 class="big" id="aHeadline">—</h2>
+        </div>
+        <div class="pin">
+          <span class="pin-label">宇宙年历</span>
+          <span class="pin-value" id="aPos">—</span>
+        </div>
+      </div>
+      <p class="lead" id="aLead"></p>
+      <p class="body" id="aBody"></p>
+      <div class="facts" id="aFacts"></div>
+      <p class="gap" id="aGap"></p>
+      <div class="checks" id="aChecks"></div>
+    </section>
+
+    <section class="card sky" id="sky" hidden>
+      <h2>它在年历上的位置</h2>
+      <div class="strips" id="strips"></div>
+      <p class="hint" id="skyHint"></p>
+    </section>
+
+    <div class="grid2">
+      <section class="card trace" id="traceCard" hidden>
+        <h2>推理过程</h2>
+        <ol class="steps" id="steps"></ol>
+      </section>
+
+      <section class="card log">
+        <div class="log-head">
+          <h2 style="margin:0">AI 研究日志 <span id="logCount" style="color:#5a6785;font-size:12px"></span></h2>
+          <div class="log-actions">
+            <button class="ghost" id="exportBtn">导出 Markdown</button>
+            <button class="ghost" id="clearBtn">清空</button>
+          </div>
+        </div>
+        <div class="profile">
+          <input id="profile" type="text" placeholder="专业班级姓名学号（导出时写入文件名与抬头）">
+        </div>
+        <div class="entries" id="entries">
+          <div class="empty">还没有记录。问一个问题，这里会自动留下这次的提问、结论与校验结果。</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= 作品说明 ================= -->
+  <div id="tab-about" class="tab-panel" hidden>
+    <section class="card about">
+      <h2>这个智能体在做什么</h2>
+      <p>
+        它只做一件事：<strong>把任何一个时间点，放到“138 亿年压缩成一年”的宇宙年历上</strong>，
+        告诉你它落在哪一天、哪一秒，并用大历史的框架解释它意味着什么。
+      </p>
+      <p>
+        输入可以是事件名（农业革命、恐龙灭绝、文字），也可以是年份（1969、公元前 3000 年、1.2 万年前）。
+        输出不只是一个数字，还有一条可读的推理链——它先解析、再换算、再校验，最后才生成叙事。
+      </p>
+      <p>
+        它有两种回答方式。<strong>本地换算</strong>用内置知识库精确计算，不联网也能用；
+        <strong>AI 问答</strong>接入 DeepSeek，能回答知识库之外的问题，并在需要时先联网检索资料、标注来源再作答。
+      </p>
+
+      <h3>为什么要做这个</h3>
+      <p>
+        大历史最难的地方不是记住年代，而是建立尺度感。课本上说“农业革命发生在 1.2 万年前”，
+        这个数字没有体感；但当我们说“它发生在宇宙年历的最后 27 秒”，尺度一下就出来了。
+      </p>
+      <p>
+        这个智能体就是把这种换算变成可反复调用的工具：你不用背公式，只需要问。
+      </p>
+
+      <h3>它怎么想（五步推理链）</h3>
+      <ul>
+        <li><strong>解析输入</strong>：判断你给的是一个事件名，还是一个时间点。</li>
+        <li><strong>对齐知识库</strong>：在 37 个大历史里程碑中匹配，拿到可靠的年代。</li>
+        <li><strong>换算</strong>：<code>位置 = 1 − 距今时间 ÷ 138 亿年</code>，把比例映射到一年 12 个月、365 天、86400 秒。</li>
+        <li><strong>校验</strong>：检查时间是否在宇宙年龄范围内、换算是否越界、与知识库记录是否一致（偏差 &lt; 5%）。</li>
+        <li><strong>生成叙事</strong>：按所属历史阶段（宇宙、行星、生命、人类、文明、现代）选择解释框架，并给出与相邻里程碑的间距。</li>
+      </ul>
+
+      <h3>它为什么不是“黑箱”</h3>
+      <p>
+        每次回答下面都有一条推理链，写清楚它匹配到了哪条记录、换算出了什么、校验是否通过。
+        目的是让你能判断它错在哪一步，而不是只能相信一个结论。
+      </p>
+      <p>
+        右下角的<strong>研究日志</strong>会自动记录每一次提问、结论与校验结果，并留出“我的判断”和“补充说明”两栏。
+        导出后就是一份可以直接提交的 AI 研究日志。
+      </p>
+
+      <h3>知识和方法的边界</h3>
+      <ul>
+        <li>年代取主流学术框架的近似值，标注“约”，用于尺度感训练而非精确断代。</li>
+        <li>年历按 365 天简化，1 秒约等于 438 年。</li>
+        <li>「本地换算」只解释知识库内的 37 个里程碑，不生成没有依据的“新结论”。</li>
+        <li>「AI 问答」会引用检索到的资料，但它仍可能出错——答案下面的来源就是用来核对的。</li>
+      </ul>
+
+      <h3>怎么复现</h3>
+      <p>
+        「本地换算」是纯前端实现，不需要联网、不需要密钥：<code>index.html</code> + <code>styles.css</code> +
+        <code>cosmic-core.js</code>（推理内核）+ <code>app.js</code>（界面）。
+        推理内核是纯函数，可以用 Node 直接跑测试（<code>node test-core.js</code>，16 项断言）。
+      </p>
+      <p>
+        「AI 问答」需要一个很小的本地后端：<code>server.py</code> 负责托管页面，并把问题转发给 DeepSeek；
+        密钥写在 <code>config.json</code> 里，不会出现在网页中。搜索服务（博查 / Tavily）是可选的——
+        不配置也能用，只是只能依靠模型自身知识。
+      </p>
+    </section>
+  </div>
+
+  <footer>宇宙年历 · 大历史智能体　|　138 亿年 → 1 年　|　1 秒 ≈ 438 年</footer>
+</div>
+
+<script>
+/*
+ * 宇宙年历 · 大历史智能体 — 推理内核
+ * 纯函数，可在浏览器与 Node 中共用（便于测试）。
+ */
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.CosmicCore = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  var NOW_YEAR = 2026;
+  var UNIVERSE_AGE = 13.8e9;          // 年
+  var YEAR_DAYS = 365;                 // 年历用 365 天简化
+  var SECONDS_PER_YEAR = 365 * 86400;  // 31,536,000
+  var SECONDS_PER_DAY = 86400;
+  var YEAR_PER_SECOND = UNIVERSE_AGE / SECONDS_PER_YEAR; // ≈ 437.6 年/秒
+  var MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  var MONTH_START = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+
+  /* ---------------- 知识库 ---------------- */
+  var EVENTS = [
+    { id: "bigbang", name: "大爆炸", yearsAgo: 13.8e9, era: "universe",
+      alias: ["大爆炸", "宇宙起源", "big bang", "创世"],
+      blurb: "时间与空间的起点，宇宙从极热极密的状态开始膨胀。",
+      source: "主流宇宙学模型（Planck 观测）" },
+    { id: "stars", name: "第一批恒星", yearsAgo: 13.6e9, era: "universe",
+      alias: ["第一批恒星", "第一代恒星", "恒星诞生", "first stars"],
+      blurb: "宇宙从黑暗中点亮，第一批恒星开始把氢氦锻造成更重的元素。",
+      source: "天文观测与模拟" },
+    { id: "galaxy", name: "银河系成形", yearsAgo: 13.2e9, era: "universe",
+      alias: ["银河系", "银河", "milky way", "星系形成"],
+      blurb: "气体与暗物质在引力下坍缩、并合，逐渐形成今天的银河系。",
+      source: "星系形成模型（盖亚卫星数据）" },
+    { id: "solar", name: "太阳系形成", yearsAgo: 4.6e9, era: "planet",
+      alias: ["太阳系", "太阳形成", "solar system"],
+      blurb: "一团分子云坍缩，太阳点火，剩余物质在盘中聚成行星。",
+      source: "陨石定年（约 45.67 亿年）" },
+    { id: "earth", name: "地球形成", yearsAgo: 4.54e9, era: "planet",
+      alias: ["地球形成", "地球诞生", "earth"],
+      blurb: "星子碰撞吸积成原始地球，表面还是熔融的岩浆海。",
+      source: "同位素定年" },
+    { id: "moon", name: "月球形成", yearsAgo: 4.5e9, era: "planet",
+      alias: ["月球", "月亮", "大撞击", "moon"],
+      blurb: "一次巨大撞击抛出物质，在轨道上重新聚成月球。",
+      source: "大撞击假说" },
+    { id: "life", name: "最早的生命", yearsAgo: 3.8e9, era: "planet",
+      alias: ["最早生命", "生命起源", "生命出现", "origin of life"],
+      blurb: "最早的生命证据出现在海底热液附近，化学开始自我复制。",
+      source: "古老岩石中的同位素与微体化石证据" },
+    { id: "oxygen", name: "大氧化事件", yearsAgo: 2.4e9, era: "life",
+      alias: ["大氧化", "氧气", "光合作用", "great oxidation"],
+      blurb: "蓝细菌的光合作用把氧气灌进大气，地球化学彻底改写。",
+      source: "地质记录（条带状铁建造）" },
+    { id: "eukaryote", name: "真核细胞出现", yearsAgo: 1.8e9, era: "life",
+      alias: ["真核细胞", "真核生物", "eukaryote"],
+      blurb: "一个细胞吞下另一个细胞，线粒体出现，复杂生命的硬件就位。",
+      source: "分子钟与化石证据" },
+    { id: "multicell", name: "多细胞生物", yearsAgo: 1.0e9, era: "life",
+      alias: ["多细胞", "multicellular"],
+      blurb: "细胞开始分工，个体第一次由许多细胞共同构成。",
+      source: "化石记录" },
+    { id: "cambrian", name: "寒武纪大爆发", yearsAgo: 5.4e8, era: "complex",
+      alias: ["寒武纪", "寒武纪大爆发", "cambrian"],
+      blurb: "短短两千万年里，几乎今天所有动物门类的祖先同时登场。",
+      source: "布尔吉斯页岩等化石库" },
+    { id: "plants", name: "植物登陆", yearsAgo: 4.7e8, era: "complex",
+      alias: ["植物登陆", "登陆", "plants"],
+      blurb: "生命爬上陆地，根系开始改造土壤与大气。",
+      source: "古植物学记录" },
+    { id: "permian", name: "二叠纪末大灭绝", yearsAgo: 2.52e8, era: "complex",
+      alias: ["二叠纪", "大灭绝", "permian"],
+      blurb: "约九成的海洋物种消失，地球用了上千万年才恢复。",
+      source: "国际地层委员会年代框架" },
+    { id: "dino", name: "恐龙出现", yearsAgo: 2.3e8, era: "complex",
+      alias: ["恐龙出现", "恐龙", "dinosaur"],
+      blurb: "恐龙登上舞台，并在此后的一亿六千万年里占据陆地。",
+      source: "化石记录" },
+    { id: "kt", name: "恐龙灭绝", yearsAgo: 6.6e7, era: "complex",
+      alias: ["恐龙灭绝", "小行星", "白垩纪末"],
+      blurb: "一颗小行星撞在尤卡坦半岛，食物链从底部断裂。",
+      source: "希克苏鲁伯撞击坑与铱异常层" },
+    { id: "primate", name: "灵长类出现", yearsAgo: 6.0e7, era: "human",
+      alias: ["灵长类", "primate"],
+      blurb: "树栖、立体视觉、抓握的手——后来人类故事的起点配置。",
+      source: "化石与分子系统学" },
+    { id: "hominin", name: "人科分化", yearsAgo: 7.0e6, era: "human",
+      alias: ["人科", "人猿分化", "hominin"],
+      blurb: "人类这一支与黑猩猩的祖先分道扬镳。",
+      source: "分子钟估算" },
+    { id: "stone", name: "石器使用", yearsAgo: 2.6e6, era: "human",
+      alias: ["石器", "旧石器", "stone tool"],
+      blurb: "打制石器出现，工具开始代替牙齿与爪子。",
+      source: "东非考古记录" },
+    { id: "erectus", name: "直立人", yearsAgo: 1.9e6, era: "human",
+      alias: ["直立人", "homo erectus"],
+      blurb: "身体比例接近现代人，走出非洲，用火。",
+      source: "化石记录" },
+    { id: "sapiens", name: "智人出现", yearsAgo: 3.0e5, era: "human",
+      alias: ["智人", "现代人", "homo sapiens"],
+      blurb: "解剖学意义上的现代人出现，语言与想象开始累积。",
+      source: "摩洛哥杰贝尔依罗等化石" },
+    { id: "africa", name: "走出非洲", yearsAgo: 7.0e4, era: "human",
+      alias: ["走出非洲", "迁徙", "out of africa"],
+      blurb: "一小群人走出非洲，此后遍布除南极外的每一块大陆。",
+      source: "遗传学与考古证据" },
+    { id: "cave", name: "洞穴壁画", yearsAgo: 4.0e4, era: "human",
+      alias: ["壁画", "洞穴艺术", "岩画"],
+      blurb: "把看到的世界画下来——符号与叙事的能力成型。",
+      source: "苏拉威西、拉斯科等遗址" },
+    { id: "agri", name: "农业革命", yearsAgo: 1.2e4, era: "civil",
+      alias: ["农业", "农业革命", "农耕", "agriculture"],
+      blurb: "人类开始驯化植物与动物，食物第一次可以储存和剩余。",
+      source: "新月沃地考古记录" },
+    { id: "city", name: "城市出现", yearsAgo: 6.0e3, era: "civil",
+      alias: ["城市", "城市化", "city"],
+      blurb: "剩余粮食养活非农业人口，聚落变成城市。",
+      source: "乌鲁克等早期城市遗址" },
+    { id: "writing", name: "文字发明", yearsAgo: 5.2e3, era: "civil",
+      alias: ["文字", "书写", "writing"],
+      blurb: "记账的需要催生符号系统，经验第一次可以跨代传递。",
+      source: "楔形文字泥板" },
+    { id: "pyramid", name: "金字塔", yearsAgo: 4.6e3, era: "civil",
+      alias: ["金字塔", "吉萨", "pyramid"],
+      blurb: "组织几万人、跨越几十年的大工程，说明国家能力已经成型。",
+      source: "埃及考古年代" },
+    { id: "axial", name: "轴心时代", yearsAgo: 2.5e3, era: "classic",
+      alias: ["轴心时代", "孔子", "苏格拉底", "佛陀"],
+      blurb: "几个互不相通的文明，几乎同时开始追问“人应该怎样生活”。",
+      source: "雅斯贝尔斯的概括" },
+    { id: "print", name: "活字印刷", yearsAgo: 9.9e2, era: "classic",
+      alias: ["印刷术", "活字", "printing"],
+      blurb: "知识的复制成本骤降，思想开始规模化流通。",
+      source: "毕昇（约 1040 年）" },
+    { id: "columbus", name: "哥伦布到达美洲", yearsAgo: 5.3e2, era: "classic",
+      alias: ["哥伦布", "地理大发现", "columbus"],
+      blurb: "两个分离了上万年的人群重新连接，物种、疾病与白银全球流动。",
+      source: "1492 年航海记录" },
+    { id: "science", name: "科学革命", yearsAgo: 4.8e2, era: "modern",
+      alias: ["科学革命", "哥白尼", "牛顿", "science"],
+      blurb: "从“权威怎么说”转向“实验怎么说”，认知方式被重写。",
+      source: "1543 年《天体运行论》" },
+    { id: "industry", name: "工业革命", yearsAgo: 2.7e2, era: "modern",
+      alias: ["工业革命", "蒸汽机", "industry"],
+      blurb: "化石能源接入生产，能量预算第一次脱离生物圈的限制。",
+      source: "18 世纪英国工业记录" },
+    { id: "electric", name: "电力时代", yearsAgo: 1.4e2, era: "modern",
+      alias: ["电力", "电气化", "electricity"],
+      blurb: "能量可以远距离传输，城市在夜间也亮着。",
+      source: "1882 年珍珠街电站" },
+    { id: "nuclear", name: "核时代", yearsAgo: 8.1e1, era: "modern",
+      alias: ["核", "原子弹", "核能", "nuclear"],
+      blurb: "人类第一次掌握能毁灭自身的能量形式。",
+      source: "1945 年" },
+    { id: "moonland", name: "登月", yearsAgo: 5.7e1, era: "modern",
+      alias: ["登月", "阿波罗", "apollo"],
+      blurb: "一个物种第一次站到另一颗天体上，并回头拍下地球。",
+      source: "1969 年阿波罗 11 号" },
+    { id: "internet", name: "互联网", yearsAgo: 3.5e1, era: "modern",
+      alias: ["互联网", "万维网", "internet", "网络"],
+      blurb: "信息传输成本趋近于零，地球第一次有了神经系统。",
+      source: "1991 年万维网公开" },
+    { id: "smartphone", name: "智能手机", yearsAgo: 1.9e1, era: "modern",
+      alias: ["智能手机", "手机", "iphone"],
+      blurb: "计算与联网装进口袋，注意力成为新的稀缺资源。",
+      source: "2007 年" },
+    { id: "now", name: "此刻", yearsAgo: 0, era: "modern",
+      alias: ["现在", "此刻", "今天", "now"],
+      blurb: "年历的最后一刻，也是你正在读这句话的瞬间。",
+      source: "—" }
+  ];
+
+  var ERAS = {
+    universe: {
+      label: "宇宙与恒星",
+      lines: [
+        "这一段离我们太远，远到“事件”这个词都不太合适——它更像是条件的一次次就位。",
+        "宇宙年历的前九个月，几乎只做一件事：把简单的氢和氦，慢慢熬成能燃烧的恒星。"
+      ]
+    },
+    planet: {
+      label: "行星与早期地球",
+      lines: [
+        "地球在这一段成型，随后用了十几亿年，把岩浆冷却成海洋与大陆。",
+        "这时候还没有“生命”的位置，只有化学、热量和岩石在互相改写。"
+      ]
+    },
+    life: {
+      label: "生命的黎明",
+      lines: [
+        "生命一旦出现，接下来的几十亿年都在重写大气、海洋与岩石的成分。",
+        "这一段的主角是微生物：看不见，却把整颗行星的化学预算改了一遍。"
+      ]
+    },
+    complex: {
+      label: "复杂生命",
+      lines: [
+        "复杂生命的故事，本质上是一场关于能量预算的革命——谁能更高效地用氧，谁就能长得更大。",
+        "从寒武纪开始，生态位像被打开的房间，一个接一个被占据、被替换。"
+      ]
+    },
+    human: {
+      label: "人类登场",
+      lines: [
+        "在年历的最后半小时，灵长类的一支学会了用火、语言和想象。",
+        "这一段最反直觉的地方是：身体变化很小，行为变化极大——工具与协作开始代替基因去适应环境。"
+      ]
+    },
+    civil: {
+      label: "农业与文明",
+      lines: [
+        "在这一段，人类第一次把阳光变成可以储存的粮食，于是有了定居、剩余和城市。",
+        "剩余粮食养活了一批不种地的人——城市、文字与国家，都是从这一步长出来的。"
+      ]
+    },
+    classic: {
+      label: "古典与连接",
+      lines: [
+        "帝国、宗教与贸易网络把分散的人群编织成更大的整体。",
+        "这一段的关键词是“连接”：连接越密，思想、疾病与商品流动得越快。"
+      ]
+    },
+    modern: {
+      label: "现代性",
+      lines: [
+        "最近这五百年，是年历上最短、也最陡的一段：能量、信息与人口几乎同时指数增长。",
+        "把这段放大看，真正的转折不是某一项发明，而是“学习速度”本身变快了。"
+      ]
+    }
+  };
+
+  /* ---------------- 工具函数 ---------------- */
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function normalize(s) {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/[，。！？、,.!?;；:："'“”‘’（）()《》]/g, "");
+  }
+
+  function fmtNumber(n) {
+    if (n >= 1e8) return (n / 1e8).toFixed(n >= 1e9 ? 0 : 1) + " 亿";
+    if (n >= 1e4) return (n / 1e4).toFixed(n >= 1e5 ? 0 : 1) + " 万";
+    return String(Math.round(n));
+  }
+
+  function fmtYears(yearsAgo) {
+    if (yearsAgo <= 0) return "此刻";
+    if (yearsAgo >= 1e8) {
+      var v = yearsAgo / 1e8;
+      return "约 " + (v >= 10 ? v.toFixed(0) : v.toFixed(1)) + " 亿年前";
+    }
+    if (yearsAgo >= 1e4) return "约 " + (yearsAgo / 1e4).toFixed(yearsAgo >= 1e5 ? 0 : 1) + " 万年前";
+    return "约 " + Math.round(yearsAgo) + " 年前";
+  }
+
+  /* ---------------- 解析 ---------------- */
+  function findEvent(query) {
+    var q = normalize(query);
+    if (!q) return null;
+    var best = null;
+    var bestScore = 0;
+    EVENTS.forEach(function (ev) {
+      var pool = [ev.name].concat(ev.alias || []);
+      pool.forEach(function (raw) {
+        var key = normalize(raw);
+        if (!key) return;
+        var score = 0;
+        if (q === key) score = 100 + key.length;
+        else if (q.indexOf(key) >= 0) score = 50 + key.length;
+        else if (key.indexOf(q) >= 0 && q.length >= 2) score = 30 + q.length;
+        if (score > bestScore) { bestScore = score; best = ev; }
+      });
+    });
+    return best ? { event: best, score: bestScore } : null;
+  }
+
+  function parseYear(query) {
+    var q = String(query || "").trim().replace(/\s+/g, "");
+    var m;
+    // 公元前 3000 / 前3000
+    m = q.match(/(?:公元前|前)(\d+(?:\.\d+)?)(万|亿)?/);
+    if (m) {
+      var mult = m[2] === "亿" ? 1e8 : m[2] === "万" ? 1e4 : 1;
+      // 公元元年之前没有“0 年”，所以要减 1
+      return { yearsAgo: NOW_YEAR + parseFloat(m[1]) * mult - 1, raw: m[0] };
+    }
+    // 1.2万年前 / 300万年前 / 12,000年前
+    m = q.match(/(\d+(?:[.,]\d+)?)(万|亿)?年前/);
+    if (m) {
+      var mult2 = m[2] === "亿" ? 1e8 : m[2] === "万" ? 1e4 : 1;
+      return { yearsAgo: parseFloat(m[1].replace(/,/g, "")) * mult2, raw: m[0] };
+    }
+    // 1969年 / 1040 年
+    m = q.match(/(\d{3,4})年/);
+    if (m) {
+      var y = parseInt(m[1], 10);
+      if (y <= NOW_YEAR) return { yearsAgo: NOW_YEAR - y, raw: m[0] };
+    }
+    // 负数年份 -10000
+    m = q.match(/^-(\d+)$/);
+    if (m) return { yearsAgo: NOW_YEAR + parseInt(m[1], 10), raw: q };
+    // 纯数字
+    m = q.match(/^(\d+(?:\.\d+)?)$/);
+    if (m) {
+      var n = parseFloat(m[1]);
+      if (n > NOW_YEAR) return { yearsAgo: n, raw: q };          // 直接当作“年前”
+      return { yearsAgo: NOW_YEAR - n, raw: q };                  // 当作公元纪年
+    }
+    return null;
+  }
+
+  /* ---------------- 换算 ---------------- */
+  function toCalendar(yearsAgo) {
+    var y = clamp(yearsAgo, 0, UNIVERSE_AGE);
+    var fraction = 1 - y / UNIVERSE_AGE;
+    var totalSeconds = clamp(fraction * SECONDS_PER_YEAR, 0, SECONDS_PER_YEAR - 0.001);
+    var dayIndex = Math.min(364, Math.floor(totalSeconds / SECONDS_PER_DAY));
+    var secInDay = totalSeconds - dayIndex * SECONDS_PER_DAY;
+    var month = 12;
+    for (var i = 0; i < 12; i++) {
+      if (dayIndex < MONTH_START[i] + MONTH_DAYS[i]) { month = i + 1; break; }
+    }
+    var day = dayIndex - MONTH_START[month - 1] + 1;
+    var hour = Math.floor(secInDay / 3600);
+    var minute = Math.floor((secInDay % 3600) / 60);
+    var second = Math.floor(secInDay % 60);
+    var dayOfYear = dayIndex + 1;
+    return {
+      yearsAgo: y,
+      fraction: fraction,
+      totalSeconds: totalSeconds,
+      dayOfYear: dayOfYear,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute,
+      second: second,
+      secondsToEnd: SECONDS_PER_YEAR - totalSeconds,
+      inDecember: dayOfYear > 334,
+      decDay: dayOfYear > 334 ? dayOfYear - 334 : null,
+      isDec31: dayOfYear === 365,
+      dec31Seconds: dayOfYear === 365 ? totalSeconds - 364 * SECONDS_PER_DAY : null
+    };
+  }
+
+  function fmtPosition(cal) {
+    if (cal.isDec31) {
+      if (cal.yearsAgo === 0) return "12 月 31 日 24:00（此刻）";
+      if (cal.dec31Seconds >= 86340) {
+        var s = cal.dec31Seconds - 86340;
+        return "12 月 31 日 23:59:" + (s < 10 ? "0" : "") + s.toFixed(1);
+      }
+      return "12 月 31 日 " + pad(cal.hour) + ":" + pad(cal.minute) + ":" + pad(cal.second);
+    }
+    return cal.month + " 月 " + cal.day + " 日 " +
+      pad(cal.hour) + ":" + pad(cal.minute) + ":" + pad(cal.second);
+  }
+
+  function fmtDuration(seconds) {
+    if (seconds < 1) return (seconds * 1000).toFixed(0) + " 毫秒";
+    if (seconds < 60) return seconds.toFixed(seconds < 10 ? 1 : 0) + " 秒";
+    if (seconds < 3600) return (seconds / 60).toFixed(1) + " 分钟";
+    if (seconds < 86400) return (seconds / 3600).toFixed(1) + " 小时";
+    return (seconds / 86400).toFixed(1) + " 天";
+  }
+
+  function fmtPercent(f) {
+    if (f <= 0) return "0%";
+    if (f >= 1) return "100%";
+    var p = f * 100;
+    if (p >= 99.99999) return ">99.9999%";
+    if (p >= 99.999) return p.toFixed(5) + "%";
+    if (p >= 99.9) return p.toFixed(3) + "%";
+    if (p < 0.001) return p.toFixed(4) + "%";
+    return p.toFixed(2) + "%";
+  }
+
+  function eventAt(yearsAgo, tolerance) {
+    var tol = tolerance || 1;
+    var hit = null;
+    EVENTS.forEach(function (ev) {
+      if (!hit && Math.abs(ev.yearsAgo - yearsAgo) <= tol) hit = ev;
+    });
+    return hit;
+  }
+
+  function neighborEvents(yearsAgo) {
+    var sorted = EVENTS.slice().sort(function (a, b) { return b.yearsAgo - a.yearsAgo; });
+    var idx = -1;
+    for (var i = 0; i < sorted.length; i++) {
+      if (Math.abs(sorted[i].yearsAgo - yearsAgo) < 1) { idx = i; break; }
+    }
+    if (idx === -1) {
+      for (var j = 0; j < sorted.length; j++) {
+        if (sorted[j].yearsAgo < yearsAgo) { idx = j; break; }
+      }
+      if (idx === -1) idx = sorted.length - 1;
+    }
+    var older = idx - 1 >= 0 ? sorted[idx - 1] : null;
+    var newer = idx + 1 < sorted.length ? sorted[idx + 1] : null;
+    return { older: older, newer: newer, index: idx, total: sorted.length };
+  }
+
+  /* ---------------- 叙事 ---------------- */
+  function narrate(input) {
+    var ev = input.event;
+    var cal = input.calendar;
+    var yearsAgo = input.yearsAgo;
+    var era = ERAS[ev && ev.era] || ERAS.modern;
+    var pick = (ev ? ev.id.charCodeAt(0) : 0) % era.lines.length;
+    var nb = neighborEvents(yearsAgo);
+
+    var headline = (ev ? ev.name : "你指定的时刻") + " · " + fmtYears(yearsAgo);
+    var pos = fmtPosition(cal);
+
+    var lead;
+    if (cal.fraction < 0.001) {
+      lead = "这是年历的第一秒——138 亿年的起点。此后的一切，都发生在这之后。";
+    } else if (yearsAgo <= 0.5) {
+      lead = "这就是年历的终点：138 亿年被压缩成一年，此刻正好是除夕的最后一秒。";
+    } else if (cal.isDec31) {
+      lead = "在把 138 亿年压缩成一年的宇宙年历上，" + (ev ? ev.name : "这一刻") +
+        "落在最后 " + fmtDuration(cal.secondsToEnd) + "。";
+    } else {
+      lead = "在这张年历上，" + (ev ? ev.name : "这一刻") + "位于 " + pos + "，距年终还有 " +
+        fmtDuration(cal.secondsToEnd) + "。";
+    }
+
+    var body = era.lines[pick];
+    if (ev && ev.blurb) body = ev.blurb + " " + body;
+
+    var scaleLine;
+    if (cal.isDec31 && cal.secondsToEnd < 3600) {
+      scaleLine = "年历上 1 秒约等于 " + Math.round(YEAR_PER_SECOND) +
+        " 年——所以你刚刚读过的这一秒，比整个人类文明史还要长好几倍。";
+    } else if (yearsAgo < 1e4) {
+      scaleLine = "对照一下：人类全部历史（约 30 万年）在年历上只有约 " +
+        fmtDuration(300000 / UNIVERSE_AGE * SECONDS_PER_YEAR) + "。";
+    } else {
+      scaleLine = "换一种说法：这件事发生在年历的 " + (cal.fraction * 100).toFixed(2) + "% 处。";
+    }
+
+    var gapLine = "";
+    if (nb.older && nb.newer) {
+      var gapOld = nb.older.yearsAgo - yearsAgo;
+      var gapNew = yearsAgo - nb.newer.yearsAgo;
+      gapLine = "它距上一个里程碑「" + nb.older.name + "」约 " + fmtNumber(gapOld) +
+        " 年，距下一个里程碑「" + nb.newer.name + "」约 " + fmtNumber(gapNew) + " 年。";
+    }
+
+    return {
+      headline: headline,
+      position: pos,
+      lead: lead,
+      body: body,
+      scaleLine: scaleLine,
+      gapLine: gapLine,
+      eraLabel: era.label
+    };
+  }
+
+  /* ---------------- 校验 ---------------- */
+  function validate(yearsAgo, cal, match) {
+    var checks = [];
+    checks.push({
+      ok: yearsAgo >= 0 && yearsAgo <= UNIVERSE_AGE,
+      label: "时间在宇宙年龄范围内（0 – 138 亿年）",
+      detail: fmtYears(yearsAgo)
+    });
+    checks.push({
+      ok: cal.fraction >= 0 && cal.fraction <= 1,
+      label: "年历位置落在 0 – 100%",
+      detail: (cal.fraction * 100).toFixed(4) + "%"
+    });
+    var expected = match && match.event ? "命中知识库" : "按年份推算";
+    checks.push({
+      ok: true,
+      label: "来源判定",
+      detail: expected
+    });
+    if (match && match.event) {
+      var diff = Math.abs(match.event.yearsAgo - yearsAgo);
+      var ratio = match.event.yearsAgo > 0 ? diff / match.event.yearsAgo : 0;
+      checks.push({
+        ok: ratio < 0.05,
+        label: "与知识库记录一致（偏差 < 5%）",
+        detail: diff < 1 ? "完全一致" : "偏差 " + (ratio * 100).toFixed(1) + "%"
+      });
+    }
+    return checks;
+  }
+
+  /* ---------------- 主流程 ---------------- */
+  function run(query) {
+    var steps = [];
+    var input = String(query || "").trim();
+
+    steps.push({
+      key: "parse",
+      title: "解析输入",
+      detail: input ? "识别到查询：" + input : "没有输入内容"
+    });
+
+    var match = findEvent(input);
+    var parsed = parseYear(input);
+    var yearsAgo = null;
+    var resolvedBy = "";
+
+    if (match && (!parsed || match.score >= 50)) {
+      yearsAgo = match.event.yearsAgo;
+      resolvedBy = "知识库";
+      steps.push({
+        key: "resolve",
+        title: "对齐知识库",
+        detail: "匹配到「" + match.event.name + "」，采用记录时点 " + fmtYears(yearsAgo)
+      });
+    } else if (parsed) {
+      yearsAgo = parsed.yearsAgo;
+      resolvedBy = "年份推算";
+      steps.push({
+        key: "resolve",
+        title: "解析年份",
+        detail: "识别到「" + parsed.raw + "」，换算为距今 " + fmtNumber(yearsAgo) + " 年"
+      });
+    } else if (match) {
+      yearsAgo = match.event.yearsAgo;
+      resolvedBy = "知识库";
+      steps.push({
+        key: "resolve",
+        title: "对齐知识库",
+        detail: "匹配到「" + match.event.name + "」，采用记录时点 " + fmtYears(yearsAgo)
+      });
+    } else {
+      return {
+        ok: false,
+        steps: steps,
+        error: "没能识别这个输入。可以试试：农业革命、恐龙灭绝、1969、1.2万年前、公元前 3000 年。"
+      };
+    }
+
+    var cal = toCalendar(yearsAgo);
+    steps.push({
+      key: "convert",
+      title: "换算到宇宙年历",
+      detail: "138 亿年 → 1 年，位置 " + fmtPosition(cal) + "（" + fmtPercent(cal.fraction) + "）"
+    });
+
+    var checks = validate(yearsAgo, cal, match);
+    steps.push({
+      key: "verify",
+      title: "校验",
+      detail: checks.map(function (c) { return (c.ok ? "✓ " : "! ") + c.label; }).join("；")
+    });
+
+    var event = match && Math.abs(match.event.yearsAgo - yearsAgo) < 1 ? match.event : eventAt(yearsAgo, 2);
+    if (!event) event = match ? match.event : null;
+    if (!match && event) {
+      steps.push({
+        key: "anchor",
+        title: "对齐到最近里程碑",
+        detail: "年份落在「" + event.name + "」附近，叙事按该事件展开"
+      });
+    }
+    var narrative = narrate({ event: event, calendar: cal, yearsAgo: yearsAgo });
+    steps.push({
+      key: "narrate",
+      title: "生成叙事",
+      detail: "按「" + narrative.eraLabel + "」阶段的框架组织解释，并给出与相邻里程碑的间距"
+    });
+
+    var nb = neighborEvents(yearsAgo);
+    steps.push({
+      key: "log",
+      title: "写入研究日志",
+      detail: "本次推理的输入、换算结果与校验结论已追加到日志，可导出为 Markdown"
+    });
+
+    return {
+      ok: true,
+      query: input,
+      yearsAgo: yearsAgo,
+      resolvedBy: resolvedBy,
+      event: event,
+      calendar: cal,
+      narrative: narrative,
+      checks: checks,
+      neighbors: nb,
+      steps: steps
+    };
+  }
+
+  return {
+    NOW_YEAR: NOW_YEAR,
+    UNIVERSE_AGE: UNIVERSE_AGE,
+    SECONDS_PER_YEAR: SECONDS_PER_YEAR,
+    YEAR_PER_SECOND: YEAR_PER_SECOND,
+    EVENTS: EVENTS,
+    ERAS: ERAS,
+    run: run,
+    toCalendar: toCalendar,
+    fmtPosition: fmtPosition,
+    fmtYears: fmtYears,
+    fmtNumber: fmtNumber,
+    fmtDuration: fmtDuration,
+    fmtPercent: fmtPercent,
+    findEvent: findEvent,
+    parseYear: parseYear,
+    neighborEvents: neighborEvents
+  };
+});
+
+</script>
+<script>
+(function () {
+  "use strict";
+
+  var C = window.CosmicCore;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  var EXAMPLES = ["农业革命", "恐龙灭绝", "文字发明", "1969", "1.2 万年前", "公元前 3000 年", "大爆炸", "互联网", "智人出现"];
+
+  var LOG_KEY = "cosmic.log.v1";
+  var PROFILE_KEY = "cosmic.profile.v1";
+
+  // 后端地址：本地为空（同源）；部署到 GitHub Pages 时指向 Cloudflare Worker
+  var API_BASE = (function () {
+    try {
+      if (window.COSMIC_API_BASE) return String(window.COSMIC_API_BASE).replace(/\/$/, "");
+      var p = new URLSearchParams(location.search).get("api");
+      if (p) {
+        var clean = String(p).replace(/\/$/, "");
+        localStorage.setItem("cosmic.apiBase", clean);
+        return clean;
+      }
+      return localStorage.getItem("cosmic.apiBase") || "";
+    } catch (e) {
+      return window.COSMIC_API_BASE || "";
+    }
+  })();
+
+  var state = { log: [], running: false, mode: "local", health: null, thread: [] };
+
+  /* -------------------- 工具 -------------------- */
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function store(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 忽略 */ }
+  }
+  function load(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function storageAvailable() {
+    try {
+      localStorage.setItem("__t", "1");
+      localStorage.removeItem("__t");
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function stamp(d) {
+    d = d || new Date();
+    var p = function (n) { return n < 10 ? "0" + n : "" + n; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+      " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+
+  /* -------------------- 星空 -------------------- */
+  function paintStars() {
+    var box = $("#stars");
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < 70; i++) {
+      var s = document.createElement("i");
+      s.style.left = (Math.random() * 100).toFixed(2) + "%";
+      s.style.top = (Math.random() * 100).toFixed(2) + "%";
+      var size = Math.random() < 0.15 ? 3 : 2;
+      s.style.width = size + "px";
+      s.style.height = size + "px";
+      s.style.animationDelay = (Math.random() * 4).toFixed(2) + "s";
+      s.style.opacity = (0.2 + Math.random() * 0.5).toFixed(2);
+      frag.appendChild(s);
+    }
+    box.appendChild(frag);
+  }
+
+  /* -------------------- 示例 -------------------- */
+  function paintChips() {
+    var box = $("#chips");
+    EXAMPLES.forEach(function (t) {
+      var b = document.createElement("button");
+      b.className = "chip";
+      b.type = "button";
+      b.textContent = t;
+      b.addEventListener("click", function () {
+        $("#q").value = t;
+        runQuery(t);
+      });
+      box.appendChild(b);
+    });
+  }
+
+  /* -------------------- 年历条 -------------------- */
+  function stripEl(cfg) {
+    var wrap = document.createElement("div");
+    wrap.className = "strip" + (cfg.faded ? " faded" : "");
+
+    var head = document.createElement("div");
+    head.className = "strip-head";
+    head.innerHTML = '<span class="strip-title">' + esc(cfg.title) + '</span>' +
+      '<span class="strip-sub">' + esc(cfg.sub) + '</span>';
+
+    var track = document.createElement("div");
+    track.className = "strip-track";
+
+    (cfg.ticks || []).forEach(function (t) {
+      var d = document.createElement("i");
+      d.className = "strip-tick";
+      d.style.left = (t.at * 100).toFixed(3) + "%";
+      track.appendChild(d);
+    });
+
+    (cfg.dots || []).forEach(function (dot) {
+      var d = document.createElement("i");
+      d.className = "strip-dot";
+      d.style.left = (dot.at * 100).toFixed(3) + "%";
+      d.title = dot.title;
+      track.appendChild(d);
+    });
+
+    var mark = document.createElement("i");
+    mark.className = "strip-mark";
+    if (!cfg.faded) {
+      var pos = Math.max(0.004, Math.min(0.996, cfg.position));
+      mark.style.left = (pos * 100).toFixed(3) + "%";
+      track.appendChild(mark);
+    }
+
+    var labels = document.createElement("div");
+    labels.className = "strip-labels";
+    (cfg.ticks || []).forEach(function (t) {
+      var s = document.createElement("span");
+      s.style.left = (t.at * 100).toFixed(3) + "%";
+      s.style.transform = t.at === 0 ? "translateX(0)" : (t.at === 1 ? "translateX(-100%)" : "translateX(-50%)");
+      s.textContent = t.label;
+      labels.appendChild(s);
+    });
+
+    wrap.appendChild(head);
+    wrap.appendChild(track);
+    wrap.appendChild(labels);
+    return wrap;
+  }
+
+  function renderSky(res) {
+    var cal = res.calendar;
+    var box = $("#strips");
+    box.innerHTML = "";
+
+    var months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+    // 每月起点（按 365 天简化）
+    var starts = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    var monthTicks = starts.map(function (d, i) { return { at: d / 365, label: months[i] }; });
+
+    var yearSub = cal.month + " 月 " + cal.day + " 日";
+    box.appendChild(stripEl({
+      title: "宇宙年（1 – 12 月）",
+      sub: yearSub,
+      ticks: monthTicks,
+      dots: [],
+      position: cal.fraction
+    }));
+
+    // 12 月
+    var decTicks = [1, 5, 10, 15, 20, 25, 31].map(function (d) {
+      return { at: (d - 1) / 30, label: d + "日" };
+    });
+    var decPos = (cal.decDay - 1) / 30;
+    box.appendChild(stripEl({
+      title: "12 月（31 天）",
+      sub: cal.inDecember ? (cal.decDay + " 日") : "不在此区间",
+      ticks: decTicks,
+      dots: [],
+      position: decPos,
+      faded: !cal.inDecember
+    }));
+
+    // 12 月 31 日
+    var hourTicks = [0, 6, 12, 18, 24].map(function (h) {
+      return { at: h / 24, label: h + ":00" };
+    });
+    var keyDots = ["sapiens", "africa", "cave", "agri", "city", "writing", "pyramid", "print", "industry"];
+    var dots = C.EVENTS.filter(function (ev) { return keyDots.indexOf(ev.id) >= 0; })
+      .map(function (ev) {
+        var cc = C.toCalendar(ev.yearsAgo);
+        if (!cc.isDec31) return null;
+        return { at: cc.dec31Seconds / 86400, title: ev.name + " · " + C.fmtPosition(cc) };
+      })
+      .filter(Boolean);
+
+    var dayPos = cal.isDec31 ? cal.dec31Seconds / 86400 : 0;
+    box.appendChild(stripEl({
+      title: "12 月 31 日（24 小时）",
+      sub: cal.isDec31 ? C.fmtPosition(cal).replace("12 月 31 日 ", "") : "不在此区间",
+      ticks: hourTicks,
+      dots: dots,
+      position: dayPos,
+      faded: !cal.isDec31
+    }));
+
+    var hint;
+    if (cal.isDec31) {
+      hint = "人类有文字以来的全部历史，都发生在这条 24 小时条的最后几十秒里。鼠标悬停小圆点可以看到其他里程碑。";
+    } else if (cal.inDecember) {
+      hint = "这件事发生在 12 月，但还没到 12 月 31 日——在年历上，它已经属于“很久以前”了。";
+    } else {
+      hint = "这件事发生在 12 月之前。年历走到 12 月时，恐龙已经灭绝，人类还没有出现。";
+    }
+    $("#skyHint").textContent = hint;
+  }
+
+  /* -------------------- 答案 -------------------- */
+  function renderAnswer(res) {
+    var n = res.narrative;
+    var cal = res.calendar;
+
+    $("#aEra").textContent = n.eraLabel;
+    $("#aHeadline").textContent = n.headline;
+    $("#aPos").textContent = C.fmtPosition(cal);
+    $("#aLead").textContent = n.lead;
+    $("#aBody").textContent = n.body;
+    $("#aGap").textContent = [n.gapLine, res.event ? "来源：" + res.event.source : "来源：按年份推算"].filter(Boolean).join("　");
+
+    var facts = [
+      { k: C.fmtYears(res.yearsAgo), v: "距今时间" },
+      { k: C.fmtPercent(cal.fraction), v: "在年历上的位置" },
+      { k: C.fmtDuration(cal.secondsToEnd), v: "距年终还有" },
+      { k: "≈ 438 年", v: "年历上每 1 秒" }
+    ];
+    if (cal.fraction < 0.001) {
+      facts[2] = { k: "第 1 秒", v: "宇宙年历的起点" };
+    }
+    $("#aFacts").innerHTML = facts.map(function (f) {
+      return '<div class="fact"><b>' + esc(f.k) + '</b><span>' + esc(f.v) + '</span></div>';
+    }).join("");
+
+    $("#aChecks").innerHTML = res.checks.map(function (c) {
+      return '<span class="check' + (c.ok ? "" : " bad") + '">' + (c.ok ? "✓ " : "! ") + esc(c.label) + "</span>";
+    }).join("");
+  }
+
+  /* -------------------- 推理链 -------------------- */
+  function renderSteps(steps) {
+    var box = $("#steps");
+    box.innerHTML = "";
+    steps.forEach(function (s, i) {
+      var li = document.createElement("li");
+      li.className = "step";
+      li.style.animationDelay = (i * 150) + "ms";
+      li.innerHTML = '<div class="step-title">' + esc(s.title) + "</div>" +
+        '<div class="step-detail">' + esc(s.detail) + "</div>";
+      box.appendChild(li);
+    });
+  }
+
+  /* -------------------- 主流程 -------------------- */
+  function runQuery(query) {
+    if (state.running) return;
+    var q = String(query == null ? $("#q").value : query).trim();
+    if (!q) { $("#q").focus(); return; }
+
+    state.running = true;
+    var btn = $("#run");
+    btn.disabled = true;
+    btn.textContent = "推演中…";
+
+    var res = C.run(q);
+
+    if (!res.ok) {
+      $("#traceCard").hidden = false;
+      renderSteps(res.steps);
+      $("#answer").hidden = false;
+      $("#aEra").textContent = "无法解析";
+      $("#aHeadline").textContent = "没听懂这个输入";
+      $("#aPos").textContent = "—";
+      $("#aLead").textContent = res.error;
+      $("#aBody").textContent = "";
+      $("#aGap").textContent = "";
+      $("#aFacts").innerHTML = "";
+      $("#aChecks").innerHTML = "";
+      $("#sky").hidden = true;
+      btn.disabled = false;
+      btn.textContent = state.mode === "ai" ? "提问" : "开始推理";
+      state.running = false;
+      return;
+    }
+
+    $("#traceCard").hidden = false;
+    renderSteps(res.steps);
+    $("#answer").hidden = false;
+    $("#aEra").textContent = "推演中";
+    $("#aLead").textContent = "";
+    $("#aBody").textContent = "";
+    $("#aGap").textContent = "";
+    $("#aFacts").innerHTML = "";
+    $("#aChecks").innerHTML = "";
+
+    var wait = res.steps.length * 150 + 260;
+
+    setTimeout(function () {
+      renderAnswer(res);
+      renderSky(res);
+      $("#sky").hidden = false;
+      addEntry(res);
+      btn.disabled = false;
+      btn.textContent = state.mode === "ai" ? "提问" : "开始推理";
+      state.running = false;
+
+      var top = $("#answer").getBoundingClientRect().top + window.scrollY - 16;
+      window.scrollTo({ top: top, behavior: "smooth" });
+    }, wait);
+  }
+
+  /* -------------------- 日志 -------------------- */
+  function pushLog(entry) {
+    entry.id = entry.id || "e" + Date.now() + Math.floor(Math.random() * 1000);
+    entry.time = entry.time || stamp();
+    entry.judgment = entry.judgment || "待定";
+    entry.note = entry.note || "";
+    state.log.unshift(entry);
+    store(LOG_KEY, state.log);
+    renderJournal();
+  }
+
+  function addEntry(res) {
+    pushLog({
+      query: res.query,
+      headline: res.narrative.headline,
+      position: C.fmtPosition(res.calendar),
+      yearsAgo: C.fmtYears(res.yearsAgo),
+      steps: res.steps.map(function (s) { return s.title; }).join(" → "),
+      checks: res.checks.map(function (c) { return (c.ok ? "✓ " : "! ") + c.label; }).join("；")
+    });
+  }
+
+  function renderJournal() {
+    var box = $("#entries");
+    var count = $("#logCount");
+    count.textContent = state.log.length ? "（" + state.log.length + " 条）" : "";
+
+    if (!state.log.length) {
+      box.innerHTML = '<div class="empty">还没有记录。问一个问题，这里会自动留下这次的提问、结论与校验结果。</div>';
+      return;
+    }
+
+    box.innerHTML = state.log.map(function (e) {
+      return '<div class="entry" data-id="' + e.id + '">' +
+        '<div class="entry-top">' +
+        '<span class="entry-q">' + esc(e.query) + "</span>" +
+        '<span class="entry-time">' + esc(e.time) + "</span>" +
+        "</div>" +
+        '<div class="entry-res">' + esc(e.yearsAgo) + " → <b>" + esc(e.position) + "</b></div>" +
+        '<div class="entry-tools">' +
+        '<select data-act="judge">' +
+        ["待定", "采纳", "部分采纳", "否决", "改写"].map(function (j) {
+          return '<option' + (j === e.judgment ? " selected" : "") + ">" + j + "</option>";
+        }).join("") +
+        "</select>" +
+        '<textarea data-act="note" placeholder="补充说明：它哪里对、哪里不对、你怎么验证的">' + esc(e.note) + "</textarea>" +
+        '<button data-act="del" title="删除">删除</button>' +
+        "</div>" +
+        "</div>";
+    }).join("");
+  }
+
+  function bindJournal() {
+    $("#entries").addEventListener("change", function (ev) {
+      var t = ev.target;
+      var wrap = t.closest(".entry");
+      if (!wrap) return;
+      var id = wrap.getAttribute("data-id");
+      var item = state.log.filter(function (e) { return e.id === id; })[0];
+      if (!item) return;
+      if (t.getAttribute("data-act") === "judge") item.judgment = t.value;
+      if (t.getAttribute("data-act") === "note") item.note = t.value;
+      store(LOG_KEY, state.log);
+    });
+
+    $("#entries").addEventListener("input", function (ev) {
+      var t = ev.target;
+      if (t.getAttribute("data-act") !== "note") return;
+      var wrap = t.closest(".entry");
+      var id = wrap.getAttribute("data-id");
+      var item = state.log.filter(function (e) { return e.id === id; })[0];
+      if (item) { item.note = t.value; store(LOG_KEY, state.log); }
+    });
+
+    $("#entries").addEventListener("click", function (ev) {
+      var t = ev.target;
+      if (t.getAttribute("data-act") !== "del") return;
+      var wrap = t.closest(".entry");
+      var id = wrap.getAttribute("data-id");
+      state.log = state.log.filter(function (e) { return e.id !== id; });
+      store(LOG_KEY, state.log);
+      renderJournal();
+    });
+  }
+
+  function buildMarkdown() {
+    var profile = ($("#profile").value || "").trim() || "（请填写专业班级姓名学号）";
+    var lines = [];
+    lines.push("# AI 研究日志 · 宇宙年历智能体");
+    lines.push("");
+    lines.push("> 主题：大历史的时间尺度——把 138 亿年压缩成一年");
+    lines.push("> 专业班级姓名学号：" + profile);
+    lines.push("> 记录条数：" + state.log.length + "　|　导出时间：" + stamp());
+    lines.push("");
+    lines.push("## 方法说明");
+    lines.push("");
+    lines.push("本智能体把 138 亿年映射为 1 年（365 天），每一秒约等于 438 年。");
+    lines.push("每次提问都会走同一条推理链：解析输入 → 对齐知识库 → 换算 → 校验 → 生成叙事。");
+    lines.push("下面的每条记录都保留了当时的结论与校验结果，供事后核对。");
+    lines.push("");
+
+    state.log.slice().reverse().forEach(function (e, i) {
+      lines.push("## 记录 " + (i + 1) + " · " + e.time);
+      lines.push("");
+      lines.push("- **我的提问**：" + e.query);
+      lines.push("- **智能体结论**：" + e.headline + " → 宇宙年历 " + e.position);
+      lines.push("- **推理链**：" + e.steps);
+      lines.push("- **校验结果**：" + e.checks);
+      lines.push("- **我的判断**：" + (e.judgment || "待定"));
+      lines.push("- **补充说明**：" + (e.note || "（待补）"));
+      lines.push("");
+    });
+
+    lines.push("---");
+    lines.push("");
+    lines.push("> 说明：年代取主流学术框架的近似值，用于训练尺度感而非精确断代。");
+    return lines.join("\n");
+  }
+
+  function exportMarkdown() {
+    if (!state.log.length) return;
+    var md = buildMarkdown();
+    var profile = ($("#profile").value || "未署名").trim().replace(/[\s\\/:*?"<>|]+/g, "");
+    var d = new Date();
+    var p = function (n) { return n < 10 ? "0" + n : "" + n; };
+    var name = "AI研究日志_" + profile + "_" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + ".md";
+
+    var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /* -------------------- 标签页 -------------------- */
+  function bindTabs() {
+    $$(".tab").forEach(function (t) {
+      t.addEventListener("click", function () {
+        var name = t.getAttribute("data-tab");
+        $$(".tab").forEach(function (x) {
+          x.classList.toggle("active", x === t);
+          x.setAttribute("aria-selected", x === t ? "true" : "false");
+        });
+        $("#tab-agent").hidden = name !== "agent";
+        $("#tab-about").hidden = name !== "about";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+  }
+
+  /* -------------------- AI 模式 -------------------- */
+  function setMode(mode) {
+    state.mode = mode;
+    $$(".mode").forEach(function (b) {
+      var on = b.getAttribute("data-mode") === mode;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+
+    var aiOK = !!(state.health && state.health.ai);
+    var hint = $("#modeHint");
+
+    if (mode === "ai") {
+      $("#askLabel").textContent = "问任何问题，AI 会先查资料再回答";
+      $("#q").placeholder = "例如：秦始皇哪年统一中国 / 猛犸象为什么灭绝 / 人类何时学会用火";
+      if (aiOK) {
+        hint.textContent = state.health.search
+          ? "已连接 DeepSeek + 联网搜索"
+          : "已连接 DeepSeek（未配置搜索，只靠模型知识）";
+        hint.style.color = "";
+      } else {
+        hint.textContent = "未连接后端或未配置密钥，切回「本地换算」仍可精确换算";
+        hint.style.color = "#e8b55e";
+      }
+    } else {
+      $("#askLabel").textContent = "问一个问题，或输入一个时间点";
+      $("#q").placeholder = "例如：农业革命 / 恐龙灭绝 / 1969 / 1.2 万年前 / 公元前 3000 年";
+      hint.textContent = "精确换算 37 个大历史里程碑";
+      hint.style.color = "";
+    }
+
+    if (!state.running) $("#run").textContent = mode === "ai" ? "提问" : "开始推理";
+
+    if (mode === "ai") {
+      $("#answer").hidden = true;
+      $("#sky").hidden = true;
+      $("#traceCard").hidden = true;
+      $("#aiCard").hidden = state.thread.length === 0;
+    } else {
+      $("#aiCard").hidden = true;
+    }
+  }
+
+  function checkHealth() {
+    fetch(API_BASE + "/api/health", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (h) { state.health = h; })
+      .catch(function () { state.health = null; })
+      .then(function () {
+        var ok = !!(state.health && state.health.ai);
+        var ai = $("#modeAI");
+        ai.disabled = !ok;
+        ai.title = ok ? "" : "需要先配置 DeepSeek 密钥（config.json）";
+        if (!ok && state.mode === "ai") setMode("local");
+        else setMode(state.mode);
+      });
+  }
+
+  function formatAnswer(text) {
+    var safe = esc(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    return safe.split(/\n{2,}/).map(function (p) {
+      return "<p>" + p.replace(/\n/g, "<br>") + "</p>";
+    }).join("");
+  }
+
+  function sourcesHtml(sources) {
+    if (!sources || !sources.length) return "";
+    return '<div class="sources"><span class="src-label">参考来源</span>' +
+      sources.map(function (s, i) {
+        var label = s.title || s.url || "来源";
+        return '<a class="src" href="' + esc(s.url) + '" target="_blank" rel="noreferrer noopener">' +
+          "<b>[" + (i + 1) + "]</b> " + esc(label) + "</a>";
+      }).join("") + "</div>";
+  }
+
+  function verifyHtml(check) {
+    if (!check) return "";
+    var tail = check.secondsToEnd < 60
+      ? "（年历最后 " + check.secondsToEnd + " 秒）"
+      : "（距年终 " + check.secondsToEnd + " 秒）";
+    return '<div class="verify">' +
+      '<span class="v-label">工具核算</span>' +
+      esc(check.label) + " ≈ 距今 " + check.yearsAgo + " 年 → <b>" + esc(check.position) + "</b>" + tail +
+      '<span class="v-note">模型自己算的位置可能算偏，以这一行为准。</span>' +
+      "</div>";
+  }
+
+  function runAI(q) {
+    if (state.running) return;
+    state.running = true;
+
+    var btn = $("#run");
+    btn.disabled = true;
+    btn.textContent = "思考中…";
+    $("#aiCard").hidden = false;
+
+    var turn = document.createElement("div");
+    turn.className = "turn";
+    turn.innerHTML =
+      '<div class="q">问：<b>' + esc(q) + "</b></div>" +
+      '<div class="a"><span class="thinking">正在检索与思考…</span></div>';
+    $("#aiThread").appendChild(turn);
+
+    var history = state.thread.slice(-6).map(function (t) {
+      return { role: t.role, content: t.content };
+    });
+
+    fetch(API_BASE + "/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, history: history })
+    })
+      .then(function (r) {
+        return r.json().then(function (d) { return { ok: r.ok, status: r.status, data: d }; });
+      })
+      .then(function (res) {
+        var data = res.data || {};
+        var body = turn.querySelector(".a");
+
+        if (!res.ok) {
+          var msg = data.error || ("请求失败（HTTP " + res.status + "）");
+          var hint = data.hint ? '<span class="hint-line">' + esc(data.hint) + "</span>" : "";
+          if (res.status === 503) {
+            hint = '<span class="hint-line">打开 <code>config.json</code> 填入 <code>api_key</code>，' +
+              "或设置环境变量 <code>DEEPSEEK_API_KEY</code>，然后重启服务。</span>";
+          }
+          body.innerHTML = '<div class="err">' + esc(msg) + hint + "</div>";
+          return;
+        }
+
+        body.innerHTML = formatAnswer(data.answer || "") + verifyHtml(data.check) + sourcesHtml(data.sources);
+
+        var meta = [];
+        if (data.model) meta.push(data.model);
+        meta.push(data.usedSearch ? "联网 " + (data.sources || []).length + " 条" : "未联网");
+        $("#aiMeta").textContent = meta.join(" · ");
+
+        state.thread.push({ role: "user", content: q });
+        state.thread.push({ role: "assistant", content: data.answer || "" });
+
+        pushLog({
+          query: q,
+          headline: (data.answer || "").replace(/\s+/g, " ").slice(0, 60) +
+            ((data.answer || "").length > 60 ? "…" : ""),
+          position: "AI 回答",
+          yearsAgo: "—",
+          steps: "AI 问答（" + (data.model || "模型") + "）",
+          checks: data.usedSearch
+            ? "引用 " + (data.sources || []).length + " 条联网资料"
+            : "未联网，仅模型知识"
+        });
+      })
+      .catch(function (err) {
+        turn.querySelector(".a").innerHTML =
+          '<div class="err">连不上后端服务。<span class="hint-line">' +
+          "如果你是用双击 HTML 打开的，AI 模式不可用；请运行 <code>启动.bat</code> " +
+          "或 <code>python server.py</code>，再从 http://127.0.0.1:8777/ 打开。" +
+          "</span></div>";
+      })
+      .then(function () {
+        state.running = false;
+        btn.disabled = false;
+        btn.textContent = state.mode === "ai" ? "提问" : "开始推理";
+      });
+  }
+
+  /* -------------------- 启动 -------------------- */
+  function init() {
+    paintStars();
+    paintChips();
+    bindTabs();
+    bindJournal();
+
+    state.log = load(LOG_KEY, []);
+    renderJournal();
+
+    if (!storageAvailable()) {
+      var tip = document.createElement("div");
+      tip.className = "empty";
+      tip.style.color = "#e8b55e";
+      tip.textContent = "提示：当前是离线文件模式，日志只保留在本次会话中——离开页面前请先点「导出 Markdown」。";
+      $("#entries").parentNode.insertBefore(tip, $("#entries"));
+    }
+
+    var prof = load(PROFILE_KEY, "");
+    if (prof) $("#profile").value = prof;
+    $("#profile").addEventListener("input", function () {
+      store(PROFILE_KEY, $("#profile").value);
+    });
+
+    $$(".mode").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.disabled) return;
+        setMode(b.getAttribute("data-mode"));
+        $("#q").focus();
+      });
+    });
+
+    function submit() {
+      var q = $("#q").value.trim();
+      if (!q) { $("#q").focus(); return; }
+      if (state.mode === "ai") runAI(q);
+      else runQuery(q);
+    }
+
+    $("#run").addEventListener("click", submit);
+    $("#q").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); submit(); }
+    });
+
+    $("#exportBtn").addEventListener("click", exportMarkdown);
+    $("#clearBtn").addEventListener("click", function () {
+      if (!state.log.length) return;
+      if (!window.confirm("清空全部研究日志？此操作不可撤销。")) return;
+      state.log = [];
+      store(LOG_KEY, state.log);
+      renderJournal();
+    });
+
+    $("#q").focus();
+
+    checkHealth();
+
+    // 支持用链接直接分享一次查询：?q=农业革命　或　?mode=ai&q=...
+    try {
+      var params = new URLSearchParams(location.search);
+      var initial = params.get("q");
+      var initialMode = params.get("mode");
+      var tab = params.get("tab");
+      if (tab === "about") {
+        var btn = document.querySelector('.tab[data-tab="about"]');
+        if (btn) btn.click();
+      }
+      if (initial) {
+        $("#q").value = initial;
+        var wantAI = initialMode === "ai";
+        setTimeout(function () {
+          if (wantAI && state.health && state.health.ai) {
+            setMode("ai");
+            runAI(initial);
+          } else {
+            runQuery(initial);
+          }
+        }, wantAI ? 700 : 320);
+      }
+    } catch (e) { /* 忽略 */ }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+
+</script>
+</body>
+</html>
